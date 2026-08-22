@@ -1,12 +1,16 @@
 # 🛡️ Context-Aware Cross-Site Scripting (XSS) Payload Sanitizer
 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![Security Level](https://img.shields.io/badge/security-Application--Level-red.svg)](#)
+[![OWASP Top 10](https://img.shields.io/badge/OWASP-A03%3A2021--Injection%20(XSS)-green.svg)](https://owasp.org/)
+
 An advanced, context-aware input sanitizer and XSS detection engine written in Python. Performs structural tokenization, recursive obfuscation decoding (URL, Base64, HTML entities), and context-sensitive sanitization to neutralize stored, reflected, and DOM-based XSS attacks.
 
 ---
 
-## 📌 Overview
+## 📌 Executive Overview
 
-Simple regex filters and basic HTML entity encoding are frequently bypassed using multi-layer encoding, attribute contexts, or event handlers.
+Basic regex filters and simple HTML entity encoding are easily bypassed using multi-layer encoding, attribute contexts, or inline event handlers.
 
 This sanitizer implements context-aware sanitization based on where user input is placed:
 1. **HTML Body Context**: Encodes HTML special characters (`<`, `>`, `&`, `"`, `'`).
@@ -16,7 +20,7 @@ This sanitizer implements context-aware sanitization based on where user input i
 
 ---
 
-## ✨ Key Features
+## ✨ Advanced Features
 
 - 🔄 **Recursive Obfuscation Decoding**: Unpacks nested URL-encoding, Base64 encodings, and HTML entity representations to catch evasive payloads.
 - 🎯 **Context-Aware Sanitization Rules**: Dynamic sanitization tailored to HTML, Attribute, JavaScript, and URI execution contexts.
@@ -25,40 +29,40 @@ This sanitizer implements context-aware sanitization based on where user input i
 
 ---
 
-## 🏗️ Processing Pipeline
+## 🏗️ Sanitization Processing Pipeline
 
 ```
-[ Raw User Input ] ──► [ Recursive Decoder ] (Unpacks Base64/URL/HTML Entities)
-                             │
-                             ▼
-                     [ Structural Tokenizer ]
-                             │
-                             ▼
-                     [ Context Classifier ]
-           ┌─────────────────┼─────────────────┐
-           ▼                 ▼                 ▼
-     [ HTML Body ]    [ Attribute ]     [ JavaScript ]
-           │                 │                 │
-           ▼                 ▼                 ▼
-   Entity Escaping     Scheme & Event    Literal & Quote
-                      Handler Stripping     Escaping
-           └─────────────────┬─────────────────┘
-                             │
-                             ▼
-                     [ Sanitized Output & XSS Detection Report ]
+ [ Raw User Input ] ──► [ Recursive Decoder ] (Unpacks Base64/URL/HTML Entities)
+                              │
+                              ▼
+                      [ Structural Tokenizer ]
+                              │
+                              ▼
+                      [ Context Classifier ]
+           ┌──────────────────┼──────────────────┐
+           ▼                  ▼                  ▼
+     [ HTML Body ]     [ Attribute ]      [ JavaScript ]
+           │                  │                  │
+           ▼                  ▼                  ▼
+   Entity Escaping      Scheme & Event     Literal & Quote
+                       Handler Stripping      Escaping
+           └──────────────────┬──────────────────┘
+                              │
+                              ▼
+                      [ Sanitized Output & XSS Detection Report ]
 ```
 
 ---
 
-## 📋 Prerequisites & Dependencies
+## 📋 Prerequisites & Setup
 
-- **Python 3.8+** (Standard library only; no external dependencies needed).
+- **Python 3.8+** (Standard library only; zero external third-party dependencies required).
 
 ---
 
-## 🚀 How to Use
+## 🚀 Usage & Integration Guide
 
-### 1. Run Interactive & Automated Tests
+### 1. Direct Execution
 ```bash
 python3 main.py
 ```
@@ -69,25 +73,24 @@ from main import AdvancedXSSSanitizer
 
 sanitizer = AdvancedXSSSanitizer()
 
-# Sample malicious input payload
-untrusted_input = "<script>alert('XSS')</script>"
+# Malicious payload
+payload = "<script>alert('XSS')</script>"
 
-# 1. Inspect for XSS payload signatures
-result = sanitizer.detect_xss(untrusted_input)
-print(f"XSS Detected: {result.is_xss}")
-print(f"Risk Score: {result.risk_score}")
+# 1. Detect XSS signature
+result = sanitizer.detect_xss(payload)
+print(f"XSS Detected: {result.is_xss} | Risk Score: {result.risk_score}")
 
 # 2. Context-aware sanitization
-clean_html = sanitizer.sanitize_html_body(untrusted_input)
+clean_body = sanitizer.sanitize_html_body(payload)
 clean_attr = sanitizer.sanitize_attribute_context("javascript:alert(1)")
 
-print(f"Clean HTML: {clean_html}")
+print(f"Clean Body: {clean_body}")
 # Output: &lt;script&gt;alert(&#x27;XSS&#x27;)&lt;/script&gt;
 ```
 
 ---
 
-## 📊 Sample Detection Output
+## 📊 Sample Output & Detection Summary
 
 ```text
 ======================================================================
@@ -103,7 +106,10 @@ CROSS-SITE SCRIPTING (XSS) PAYLOAD SANITIZER
 
 ---
 
-## 🛡️ Defensive Value
+## 🛡️ OWASP Alignment & Threat Mitigation Matrix
 
-- **Defense-in-Depth**: Secures web apps against bypasses caused by browser rendering quirks and multi-encoding obfuscation.
-- **OWASP Recommended Practice**: Aligns with OWASP XSS Prevention Cheat Sheet rules.
+| Threat Vector | Attack Description | Engine Countermeasure |
+|---|---|---|
+| **Reflected XSS** | Scripts injected via URL parameters reflected into HTML. | Context-aware HTML entity encoding. |
+| **Stored XSS** | Malicious scripts stored in databases rendered to users. | Input tokenization and scheme sanitization before storage. |
+| **DOM-based XSS** | Client-side JS manipulates DOM using untrusted sources. | JS literal escaping and URI scheme filtering (`javascript:`). |
